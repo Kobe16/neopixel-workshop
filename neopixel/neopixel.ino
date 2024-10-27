@@ -2,7 +2,7 @@
 #ifdef __AVR__
   #include <avr/power.h>
 #endif
-#define PIN       6
+#define PIN       5
 #define NUMPIXELS 6
 
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
