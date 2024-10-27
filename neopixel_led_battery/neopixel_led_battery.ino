@@ -6,10 +6,10 @@
 #ifdef __AVR__
   #include <avr/power.h>
 #endif
-#define PIN       5
+#define LED_PIN       5
 #define NUMPIXELS 6
 
-Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels(NUMPIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 // Cell sensing pins
 #define B1_C1 A1
@@ -41,12 +41,19 @@ ros::NodeHandle nh;
 // unsigned char manual[] = {LOW, LOW, HIGH};
 // unsigned char disabled[] = {HIGH, HIGH, LOW};
 // unsigned char goal_reached[] = {LOW, HIGH, LOW};
-static uint32_t autonomous = pixels.Color(150, 0, 0);
-static uint32_t goal_reached = pixels.Color(0, 150, 0);
-static uint32_t manual = pixels.Color(0, 0, 150);
-static uint32_t disabled = pixels.Color(150, 150, 0);
-static uint32_t led_off = pixels.Color(0, 0, 0);
 // unsigned char led_off[] = {LOW, LOW, LOW};	
+
+static uint32_t RED = pixels.color(150, 0, 0); 
+static uint32_t GREEN = pixels.color(0, 150, 0); 
+static uint32_t BLUE = pixels.color(0, 0, 150);
+static uint32_t YELLOW = pixels.color(200, 200, 0);
+static uint32_t BLACK = pixels.color(0, 0, 0);
+
+static uint32_t autonomous = RED;
+static uint32_t manual = BLUE;
+static uint32_t disabled = YELLOW; 
+static uint32_t goal_reached = GREEN;
+static uint32_t led_off = BLACK;
 
 int battery_pins[6] = {B1_C1, B1_C2, B1_C3, B2_C1, B2_C2, B2_C3};
 float Aconstants[3] = {C1_A, C2_A, C3_A};
@@ -85,7 +92,7 @@ void setup() {
     for (int i = 0; i < NUM_CELLS; i++)
       battery_levels.data[i] = 0;
 
-  pinMode(PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
   nh.initNode();
   nh.subscribe(state_sub);
   nh.advertise(battery_pub);
@@ -110,11 +117,29 @@ void loop() {
 void led_panic()
 {
   unsigned int time = millis();
-  if (time % 1000 < 500) state = pixels.Color(255,239,0);
-  else state = led_off;
-  for (int i = 0; i < NUMPIXELS; i++) {
-    pixels.setPixelColor(i, state);
+
+  // if (time % 1000 < 500) state = pixels.Color(255,239,0);
+  // else state = led_off;
+  // for (int i = 0; i < NUMPIXELS; i++) {
+  //   pixels.setPixelColor(i, state);
+  // }
+
+  if ((time & 1 << i) == 0) {
+    switch(i) {
+      case 0: 
+        for (int i = 0; i < NUMPIXELS; i++) pixels.setPixelColor(i, RED);
+        break;
+      case 1: 
+        for (int i = 0; i < NUMPIXELS; i++) pixels.setPixelColor(i, GREEN);
+        break;
+      case 2: 
+        for (int i = 0; i < NUMPIXELS; i++) pixels.setPixelColor(i, BLUE);
+        break;
+    }
+  } else {
+    for (int i = 0; i < NUMPIXELS; i++) pixels.setPixelColor(i, BLACK);
   }
+
 }
 
 bool should_panic() {
