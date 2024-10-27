@@ -7,7 +7,7 @@
   #include <avr/power.h>
 #endif
 #define LED_PIN       5
-#define NUMPIXELS 6
+#define NUMPIXELS     6
 
 Adafruit_NeoPixel pixels(NUMPIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -35,13 +35,6 @@ Adafruit_NeoPixel pixels(NUMPIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 #define C3_B C2_B
 
 ros::NodeHandle nh;
-
-//const unsigned char led_pins[] = {LED_R, LED_G, LED_B};
-// unsigned char autonomous[] = {HIGH, LOW, LOW};
-// unsigned char manual[] = {LOW, LOW, HIGH};
-// unsigned char disabled[] = {HIGH, HIGH, LOW};
-// unsigned char goal_reached[] = {LOW, HIGH, LOW};
-// unsigned char led_off[] = {LOW, LOW, LOW};	
 
 static uint32_t RED = pixels.color(150, 0, 0); 
 static uint32_t GREEN = pixels.color(0, 150, 0); 
@@ -117,13 +110,6 @@ void loop() {
 void led_panic()
 {
   unsigned int time = millis();
-
-  // if (time % 1000 < 500) state = pixels.Color(255,239,0);
-  // else state = led_off;
-  // for (int i = 0; i < NUMPIXELS; i++) {
-  //   pixels.setPixelColor(i, state);
-  // }
-
   if ((time & 1 << i) == 0) {
     switch(i) {
       case 0: 
