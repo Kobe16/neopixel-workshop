@@ -11,15 +11,13 @@
 
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
-ros::NodeHandle nh;
-
 // Cell sensing pins
-#define B1_C1 A3
+#define B1_C1 A1
 #define B1_C2 A2
-#define B1_C3 A0
-#define B2_C1 A1
-#define B2_C2 A6
-#define B2_C3 A7
+#define B1_C3 A3
+#define B2_C1 A4
+#define B2_C2 A5
+#define B2_C3 A6
 
 #define NUM_CELLS 6
 #define CELLS_PER_BATT 3
@@ -36,6 +34,7 @@ ros::NodeHandle nh;
 #define C3_A C2_A // very close to the same (due to same differential measurement circuit)
 #define C3_B C2_B
 
+ros::NodeHandle nh;
 
 //const unsigned char led_pins[] = {LED_R, LED_G, LED_B};
 // unsigned char autonomous[] = {HIGH, LOW, LOW};
@@ -47,14 +46,14 @@ static uint32_t goal_reached = pixels.Color(0, 150, 0);
 static uint32_t manual = pixels.Color(0, 0, 150);
 static uint32_t disabled = pixels.Color(150, 150, 0);
 static uint32_t led_off = pixels.Color(0, 0, 0);
-// unsigned char led_off[] = {LOW, LOW, LOW};  
+// unsigned char led_off[] = {LOW, LOW, LOW};	
 
 int battery_pins[6] = {B1_C1, B1_C2, B1_C3, B2_C1, B2_C2, B2_C3};
 float Aconstants[3] = {C1_A, C2_A, C3_A};
 float Bconstants[3] = {C1_B, C2_B, C3_B};
 unsigned long last_battery_reading = 0;
 
-unsigned char *state = disabled;  // start out disabled
+static uint32_t state = disabled;  // start out disabled
 
 void refresh_color() {
   for (int i = 0; i < NUMPIXELS; i++) pixels.setPixelColor(i, state);  // add neopixel code
@@ -86,14 +85,13 @@ void setup() {
     for (int i = 0; i < NUM_CELLS; i++)
       battery_levels.data[i] = 0;
 
+  pinMode(PIN, OUTPUT);
   nh.initNode();
   nh.subscribe(state_sub);
   nh.advertise(battery_pub);
 }
 
 void loop() {
-  pixels.clear();
-
   if (millis() - last_battery_reading > BATTERY_READ_PERIOD) {
     last_battery_reading = millis();
     handle_batteries();
@@ -104,20 +102,19 @@ void loop() {
   else {
     refresh_color();
   }
-
+  pixels.show();
   nh.spinOnce(); // must be called for rosserial to work
   delay(10);
 }
 
 void led_panic()
 {
-  //unsigned int time = millis() / 32;
-  // for (int i = 0; i < NUM_LED_PINS; i++) {
-  //   if ((time & 1 << i) == 0) // add neopixel code
-  //     digitalWrite(led_pins[i], HIGH);
-  //   else
-  //     digitalWrite(led_pins[i], LOW);
-  // }
+  unsigned int time = millis();
+  if (time % 1000 < 500) state = pixels.Color(255,239,0);
+  else state = led_off;
+  for (int i = 0; i < NUMPIXELS; i++) {
+    pixels.setPixelColor(i, state);
+  }
 }
 
 bool should_panic() {
